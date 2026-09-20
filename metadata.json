@@ -1,0 +1,6 @@
+{
+  "name": "Mouse Macerası",
+  "description": "İlkokul öğrencileri için eğlenceli ve etkileşimli fare (mouse) becerileri öğrenme ve alıştırma oyunu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

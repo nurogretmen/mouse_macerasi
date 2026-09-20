@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Quicksand', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+/* 3D Toyetic Tactile Buttons with Crisp Underside Ledges */
+.btn-toy-primary {
+  box-shadow: 0 6px 0 #1d4ed8;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.btn-toy-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #1d4ed8;
+}
+.btn-toy-primary:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #1d4ed8;
+}
+
+.btn-toy-success {
+  box-shadow: 0 6px 0 #047857;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.btn-toy-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #047857;
+}
+.btn-toy-success:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #047857;
+}
+
+.btn-toy-secondary {
+  box-shadow: 0 6px 0 #d97706;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.btn-toy-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #d97706;
+}
+.btn-toy-secondary:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #d97706;
+}
+
+.btn-toy-ghost {
+  box-shadow: 0 4px 0 #cbd5e1;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.btn-toy-ghost:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #cbd5e1;
+}
+.btn-toy-ghost:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #cbd5e1;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-certificate,
+  #printable-certificate * {
+    visibility: visible;
+  }
+  #printable-certificate {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    border: 4px double #d97706 !important;
+    background-color: #ffffff !important;
+  }
+}
+
+@keyframes shake-cell {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.shake-cell {
+  animation: shake-cell 0.4s ease-in-out;
+}
+
+
