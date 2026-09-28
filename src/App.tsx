@@ -7,8 +7,8 @@ import { MouseLessonGuideModal } from './components/MouseLessonGuideModal.tsx';
 import { LevelCompleteModal } from './components/LevelCompleteModal.tsx';
 import { ACTIVITIES } from './data/activities.ts';
 import { AppView } from './types.ts';
-import { ArrowLeft, BookOpen, RotateCcw } from 'lucide-react';
-import { soundEffects } from './utils/audio.ts';
+import { ArrowLeft, BookOpen, RotateCcw, Volume2 } from 'lucide-react';
+import { soundEffects, speakTurkishText } from './utils/audio.ts';
 
 // 12 Activity Components
 import { Activity1Butterfly } from './components/levels/Activity1Butterfly.tsx';
@@ -188,24 +188,65 @@ export default function App() {
         {activeActivityId !== null ? (
           /* Active Game/Activity Screen - Focused & Restrained */
           <div className="w-full flex flex-col items-center">
-            {/* Top Navigation Bar inside Active Activity */}
-            <div className="w-full max-w-5xl flex items-center justify-between gap-2 mb-4">
-              <button
-                onClick={handleGoHome}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-white text-slate-700 font-black text-xs sm:text-sm border-2 border-slate-200 cursor-pointer shadow-xs hover:bg-slate-50 transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Ana Sayfaya Dön</span>
-              </button>
+            {/* Top Navigation & Yönerge Bar inside Active Activity */}
+            <div className="w-full max-w-5xl flex flex-col gap-3 mb-4">
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  onClick={handleGoHome}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-white text-slate-700 font-black text-xs sm:text-sm border-2 border-slate-200 cursor-pointer shadow-xs hover:bg-slate-50 transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Ana Sayfaya Dön</span>
+                </button>
 
-              {/* Guide Button */}
-              <button
-                onClick={() => setShowGuideModal(true)}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-blue-50 text-blue-700 text-xs sm:text-sm font-black border border-blue-200 cursor-pointer hover:bg-blue-100 transition-colors"
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>Tuş Rehberi</span>
-              </button>
+                {/* Guide Button */}
+                <button
+                  onClick={() => setShowGuideModal(true)}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-blue-50 text-blue-700 text-xs sm:text-sm font-black border border-blue-200 cursor-pointer hover:bg-blue-100 transition-colors"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span>Tuş Rehberi</span>
+                </button>
+              </div>
+
+              {/* UNIVERSAL VOICE-ENABLED YÖNERGE BANNER */}
+              {activeActivity && (
+                <div className="w-full bg-white rounded-3xl border-3 border-blue-200 p-3 sm:p-4 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 select-none">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center text-white text-base sm:text-lg font-black shadow-xs shrink-0"
+                      style={{ backgroundColor: activeActivity.color }}
+                    >
+                      #{activeActivity.id}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
+                          Etkinlik Yönergesi:
+                        </span>
+                        <span
+                          className="px-2 py-0.5 rounded-full text-[10px] font-black text-white"
+                          style={{ backgroundColor: activeActivity.color }}
+                        >
+                          {activeActivity.actionBadgeText}
+                        </span>
+                      </div>
+                      <p className="text-xs sm:text-sm font-bold text-slate-800 mt-0.5 leading-snug">
+                        {activeActivity.actionInstruction}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => speakTurkishText(`${activeActivity.title}. ${activeActivity.actionInstruction}`)}
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs sm:text-sm cursor-pointer shadow-sm hover:shadow-md transition-all shrink-0 active:scale-95"
+                    title="Bu etkinliğin yönergesini sesli dinle"
+                  >
+                    <Volume2 className="w-4 h-4 text-amber-300" />
+                    <span>Yönergeyi Dinle 🔊</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Dynamic Activity Component Rendering */}
@@ -228,7 +269,7 @@ export default function App() {
             )}
 
             {activeActivityId === 3 && (
-              <Activity3ColorSquares
+              <Activity4RabbitPath
                 key={activeActivityId}
                 soundEnabled={soundEnabled}
                 onComplete={handleActivityCompleted}
@@ -237,7 +278,7 @@ export default function App() {
             )}
 
             {activeActivityId === 4 && (
-              <Activity4RabbitPath
+              <Activity3ColorSquares
                 key={activeActivityId}
                 soundEnabled={soundEnabled}
                 onComplete={handleActivityCompleted}
@@ -255,7 +296,7 @@ export default function App() {
             )}
 
             {activeActivityId === 6 && (
-              <Activity6MemoryCards
+              <Activity9GardenPuzzle
                 key={activeActivityId}
                 soundEnabled={soundEnabled}
                 onComplete={handleActivityCompleted}
@@ -264,15 +305,6 @@ export default function App() {
             )}
 
             {activeActivityId === 7 && (
-              <Activity7RocketLaunch
-                key={activeActivityId}
-                soundEnabled={soundEnabled}
-                onComplete={handleActivityCompleted}
-                onSoundToggle={handleSoundToggle}
-              />
-            )}
-
-            {activeActivityId === 8 && (
               <Activity8ShadowMatch
                 key={activeActivityId}
                 soundEnabled={soundEnabled}
@@ -281,8 +313,17 @@ export default function App() {
               />
             )}
 
+            {activeActivityId === 8 && (
+              <Activity6MemoryCards
+                key={activeActivityId}
+                soundEnabled={soundEnabled}
+                onComplete={handleActivityCompleted}
+                onSoundToggle={handleSoundToggle}
+              />
+            )}
+
             {activeActivityId === 9 && (
-              <Activity9GardenPuzzle
+              <Activity7RocketLaunch
                 key={activeActivityId}
                 soundEnabled={soundEnabled}
                 onComplete={handleActivityCompleted}

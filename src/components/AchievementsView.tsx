@@ -25,10 +25,10 @@ const BADGES: BadgeItem[] = [
   { id: 4, activityId: 4, title: 'Uzay Kaşifi', description: 'Uzayda imleç takibi ve tıklama görevlerini bitirdin.', emoji: '🚀', color: 'from-indigo-400 to-purple-500' },
   { id: 5, activityId: 5, title: 'Çift Tık Ustası', description: 'Hızlıca iki kez basarak özel balonları uçurdun.', emoji: '⚡', color: 'from-amber-400 to-orange-500' },
   { id: 6, activityId: 6, title: 'Hafıza Şampiyonu', description: 'Kartları tek tıklamayla açıp ikili eşleri buldun.', emoji: '🃏', color: 'from-pink-400 to-rose-500' },
-  { id: 7, activityId: 7, title: 'Gizli Menü Kaşifi', description: 'Sağ tıklamayla sandıkların menülerini keşfettin.', emoji: '🎁', color: 'from-purple-400 to-violet-500' },
+  { id: 7, activityId: 7, title: 'Labirent Ustası', description: "Mouse'unu dikkatli hareket ettirerek fareyi peynire ulaştırdın.", emoji: '🧀', color: 'from-amber-400 to-orange-500' },
   { id: 8, activityId: 8, title: 'Düzen Ustası', description: 'Oyuncakları sürükleyip kutularına yerleştirdin.', emoji: '🧸', color: 'from-teal-400 to-emerald-500' },
   { id: 9, activityId: 9, title: 'Bahçe Mimarı', description: 'Yapboz parçalarını doğru yuvalara taşıdın.', emoji: '🧩', color: 'from-lime-400 to-green-600' },
-  { id: 10, activityId: 10, title: 'Mouse Becerisi Ustası', description: 'Tek tık, çift tık, sağ tık ve sürüklemeyi doğru ayırt ettin.', emoji: '🎯', color: 'from-blue-500 to-cyan-500' },
+  { id: 10, activityId: 10, title: 'Dedektif Mouse', description: 'Görsel dikkat ve sol tuşla tek tıklamayla tüm gizli nesneleri buldun.', emoji: '🔎', color: 'from-blue-600 to-indigo-600' },
   { id: 11, activityId: 11, title: 'Yıldız Avcısı', description: 'Hareketli hedefleri dikkatle takip ettin.', emoji: '⭐', color: 'from-yellow-400 to-amber-500' },
   { id: 12, activityId: 12, title: 'Büyük Macera Şampiyonu', description: '12 adımlık mouse serüvenini başarıyla tamamladın!', emoji: '🏆', color: 'from-amber-400 to-yellow-600' },
 ];

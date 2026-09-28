@@ -14,6 +14,7 @@ import {
   Trophy,
   ArrowUp,
   MousePointer,
+  X,
 } from 'lucide-react';
 import { soundEffects } from '../../utils/audio.ts';
 
@@ -58,6 +59,10 @@ interface LevelConfig {
     maxX: number;
     initialX: number;
   }>;
+  explanationTitle: string;
+  explanationStory: string;
+  rules: Array<{ icon: string; title: string; desc: string }>;
+  obstacleText: string;
 }
 
 const LEVEL_CONFIGS: LevelConfig[] = [
@@ -71,6 +76,32 @@ const LEVEL_CONFIGS: LevelConfig[] = [
     alignmentTolerancePercent: 12,
     stepYGapPx: 85,
     satellites: [], // No satellites in Easy
+    explanationTitle: '1. Seviye: Uzay Kulesine İlk Adım',
+    explanationStory:
+      'Astronotumuzun uzay kulesindeki parlayan altın yıldızlara ulaşması için senin yardımına ihtiyacı var! Merdiveni yönlendir, hizala ve astronotu zirveye ulaştır!',
+    rules: [
+      {
+        icon: '🖱️',
+        title: 'Fareyi Sağa ve Sola Kaydır',
+        desc: "Mouse hareketinle merdiveni ekranda sağa ve sola kolayca kaydır.",
+      },
+      {
+        icon: '🪜',
+        title: 'Merdiveni Basamağa Hizala',
+        desc: 'Merdiveni sıradaki basamağın altına getir. Hizalandığında yeşil ışık yanacak!',
+      },
+      {
+        icon: '👆',
+        title: 'Sol Tuşla 1 Kez Tıkla',
+        desc: 'Yeşil yandığında farenin SOL TUŞUNA 1 kez tıkla. Astronot merdivenden yukarı tırmanır!',
+      },
+      {
+        icon: '⭐',
+        title: 'Yıldızları Topla',
+        desc: '5 basamak boyunca 3 adet parlayan altın yıldızı toplayıp zirveye ulaş!',
+      },
+    ],
+    obstacleText: 'Bu seviyede engel yok! Merdiveni hizalayıp sol tıklamaya odaklanabilirsin.',
   },
   {
     levelNum: 2,
@@ -97,6 +128,32 @@ const LEVEL_CONFIGS: LevelConfig[] = [
         initialX: 70,
       },
     ],
+    explanationTitle: '2. Seviye: Uydu Engelleri & Dikkat',
+    explanationStory:
+      'Harika gidiyorsun! Bu seviyede basamaklar arasında hareket eden dönen uzay uyduları var. Uydulara çarpmadan dikkatlice tırmanmalısın!',
+    rules: [
+      {
+        icon: '🛰️',
+        title: 'Uyduların Geçmesini Bekle',
+        desc: 'Basamaklar arasında dönen uyduları izle. Önün boşalana kadar bekle.',
+      },
+      {
+        icon: '🪜',
+        title: 'Merdiveni Hizala',
+        desc: 'Uydu uzaklaştığında merdiveni astronotun ve sıradaki basamağın altına getir.',
+      },
+      {
+        icon: '👆',
+        title: 'Zamanında Sol Tıkla',
+        desc: 'Yeşil ışık yandığında sol tuşa bir kez tıkla ve astronotu yukarı fırlat!',
+      },
+      {
+        icon: '⭐',
+        title: '5 Yıldızı Topla',
+        desc: '8 basamak boyunca gizlenmiş 5 yıldızı topla ve orta seviyeyi tamamla!',
+      },
+    ],
+    obstacleText: '2 adet hareketli uydu var! Uyduya çarparsan astronot 1 basamak geriler.',
   },
   {
     levelNum: 3,
@@ -130,6 +187,32 @@ const LEVEL_CONFIGS: LevelConfig[] = [
         initialX: 45,
       },
     ],
+    explanationTitle: '3. Seviye: Büyük Şampiyonluk Zirvesi',
+    explanationStory:
+      'Büyük Uzay Şampiyonluğu! 12 basamaklı dev kule, daha dar basamaklar ve 3 adet hızlı uydu seni bekliyor! Usta bir tırmanıcı olduğunu kanıtla!',
+    rules: [
+      {
+        icon: '🎯',
+        title: 'Hassas Merdiven Kontrolü',
+        desc: 'Basamaklar dar olduğu için mouse ile merdiveni çok dikkatli hizala.',
+      },
+      {
+        icon: '⚡',
+        title: 'Hızlı Uyduları Kolla',
+        desc: 'Farklı hızlarda hareket eden 3 uydunun geçiş anını sabırla yakala.',
+      },
+      {
+        icon: '👆',
+        title: 'Kusursuz Zamanlama ile Tık',
+        desc: 'Doğru anda sol tuşa tıkla ve basamakları birer birer tırman.',
+      },
+      {
+        icon: '🏆',
+        title: '8 Yıldız ve Şampiyonluk',
+        desc: '8 yıldızı topla, 12. zirve basamağına ulaş ve Şampiyonluk Rozetini kazan!',
+      },
+    ],
+    obstacleText: '3 adet hızlı devriye uydusu var! En iyi reflekslerini sergile.',
   },
 ];
 
@@ -162,7 +245,8 @@ export const Activity12StarLadder: React.FC<ActivityProps> = ({
   const [messageType, setMessageType] = useState<'info' | 'success' | 'warning'>('info');
   const [isClimbing, setIsClimbing] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
-  const [showGuide, setShowGuide] = useState<boolean>(true);
+  const [isLevelStarted, setIsLevelStarted] = useState<boolean>(false);
+  const [showHelpModal, setShowHelpModal] = useState<boolean>(false);
   const [levelCompletedModal, setLevelCompletedModal] = useState<boolean>(false);
   const [allFinished, setAllFinished] = useState<boolean>(false);
 
@@ -239,6 +323,8 @@ export const Activity12StarLadder: React.FC<ActivityProps> = ({
       setIsClimbing(false);
       setLevelCompletedModal(false);
       setIsPaused(false);
+      setIsLevelStarted(false);
+      setShowHelpModal(false);
 
       const generatedSteps = initLevelSteps(cfg);
       setSteps(generatedSteps);
@@ -272,9 +358,15 @@ export const Activity12StarLadder: React.FC<ActivityProps> = ({
     setupLevel(0);
   }, [setupLevel]);
 
+  // Handler to start the level from explanation screen
+  const handleStartLevel = () => {
+    setIsLevelStarted(true);
+    soundEffects.playPop(soundEnabled);
+  };
+
   // Satellite animation loop
   useEffect(() => {
-    if (isPaused || satellites.length === 0 || levelCompletedModal || allFinished) return;
+    if (!isLevelStarted || isPaused || satellites.length === 0 || levelCompletedModal || allFinished) return;
 
     let animId: number;
     const updateSatellites = () => {
@@ -303,7 +395,7 @@ export const Activity12StarLadder: React.FC<ActivityProps> = ({
 
     animId = requestAnimationFrame(updateSatellites);
     return () => cancelAnimationFrame(animId);
-  }, [isPaused, satellites.length, levelCompletedModal, allFinished]);
+  }, [isLevelStarted, isPaused, satellites.length, levelCompletedModal, allFinished]);
 
   // Target step astronaut needs to climb to
   const targetStepIndex = astronautStep < currentConfig.totalSteps ? astronautStep + 1 : currentConfig.totalSteps;
@@ -325,7 +417,7 @@ export const Activity12StarLadder: React.FC<ActivityProps> = ({
 
   // Handle Mouse Movement to position the ladder
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isPaused || isClimbing || !containerRef.current) return;
+    if (!isLevelStarted || isPaused || isClimbing || !containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
     const clientX = e.clientX;
@@ -339,7 +431,7 @@ export const Activity12StarLadder: React.FC<ActivityProps> = ({
 
   // Handle Single Left Click to initiate jump/climb
   const handleStageClick = () => {
-    if (isPaused || isClimbing || levelCompletedModal || allFinished) return;
+    if (!isLevelStarted || isPaused || isClimbing || levelCompletedModal || allFinished) return;
 
     // Check if game already finished
     if (astronautStep >= currentConfig.totalSteps) return;
@@ -491,11 +583,15 @@ export const Activity12StarLadder: React.FC<ActivityProps> = ({
 
           {/* Pause / Resume Button */}
           <button
+            disabled={!isLevelStarted}
             onClick={() => {
+              if (!isLevelStarted) return;
               setIsPaused(!isPaused);
               soundEffects.playPop(soundEnabled);
             }}
-            className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-colors cursor-pointer"
+            className={`p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-colors ${
+              !isLevelStarted ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
+            }`}
             title={isPaused ? 'Devam Et' : 'Duraklat'}
           >
             {isPaused ? <Play className="w-4 h-4 fill-white" /> : <Pause className="w-4 h-4" />}
@@ -521,7 +617,7 @@ export const Activity12StarLadder: React.FC<ActivityProps> = ({
 
           {/* Help Guide Button */}
           <button
-            onClick={() => setShowGuide(!showGuide)}
+            onClick={() => setShowHelpModal(true)}
             className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-colors cursor-pointer"
             title="Nasıl Oynanır?"
           >
@@ -530,313 +626,391 @@ export const Activity12StarLadder: React.FC<ActivityProps> = ({
         </div>
       </div>
 
-      {/* Instructional Feedback Notification Bar */}
-      <div
-        className={`px-4 py-2 border-b flex items-center justify-between text-xs sm:text-sm font-bold transition-colors duration-300 ${
-          messageType === 'success'
-            ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
-            : messageType === 'warning'
-            ? 'bg-amber-50 text-amber-950 border-amber-300'
-            : 'bg-indigo-50 text-indigo-900 border-indigo-200'
-        }`}
-      >
-        <div className="flex items-center gap-2">
-          {messageType === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />}
-          {messageType === 'warning' && <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 animate-bounce" />}
-          {messageType === 'info' && <MousePointer className="w-4 h-4 text-indigo-600 shrink-0 animate-pulse" />}
-          <span>{message}</span>
-        </div>
+      {/* ==================================================== */}
+      {/* PRE-LEVEL EXPLANATION SCREEN (BEFORE LEVEL BEGINS)   */}
+      {/* ==================================================== */}
+      {!isLevelStarted ? (
+        <div className="relative w-full min-h-[480px] sm:min-h-[530px] bg-gradient-to-b from-[#080c24] via-[#0f173f] to-[#1c1846] p-4 sm:p-7 flex flex-col justify-between overflow-hidden select-none">
+          {/* Deep Space Background Atmosphere */}
+          <div className="absolute top-4 left-8 text-3xl opacity-30 pointer-events-none animate-pulse">✨</div>
+          <div className="absolute top-12 right-12 text-4xl opacity-40 pointer-events-none">🌕</div>
+          <div className="absolute bottom-16 left-12 text-3xl opacity-30 pointer-events-none">🪐</div>
+          <div className="absolute bottom-8 right-8 text-2xl opacity-40 pointer-events-none">⭐</div>
 
-        {/* Current Step Progress Badge */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-white/80 border border-slate-300 text-slate-700">
-            Basamak {astronautStep} / {currentConfig.totalSteps}
-          </span>
-        </div>
-      </div>
+          <div className="relative z-10 w-full max-w-3xl mx-auto flex flex-col items-center text-center my-auto">
+            {/* Level Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 text-xs sm:text-sm font-black mb-3 shadow-xs">
+              <span className="text-base">🚀</span>
+              <span>{currentConfig.badge}</span>
+            </div>
 
-      {/* Tutorial Banner (Dismissable) */}
-      {showGuide && (
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-indigo-200 px-5 py-3 flex items-start justify-between text-xs sm:text-sm text-indigo-950 font-medium">
-          <div className="flex items-start gap-2.5">
-            <span className="text-2xl mt-0.5">🚀</span>
-            <div>
-              <strong className="font-black text-indigo-900 block mb-1">
-                Nasıl Oynanır? (Yıldız Merdiveni Adımları):
-              </strong>
-              <ol className="list-decimal list-inside space-y-0.5 text-xs text-indigo-900/90 font-bold">
-                <li>Mouse'unu sağa ve sola hareket ettir. (Merdiven imleci takip eder)</li>
-                <li>Merdiveni astronotun ve bir sonraki basamağın altına hizala.</li>
-                <li>Sol tuşa bir kez tıkla. (Astronot yukarı tırmanır)</li>
-                <li>Yıldızları topla ve hareketli uydulara dikkat et!</li>
-              </ol>
+            {/* Level Title */}
+            <h3 className="text-2xl sm:text-3xl font-black text-white tracking-wide mb-2 drop-shadow-md">
+              {currentConfig.explanationTitle}
+            </h3>
+
+            {/* Mission Story */}
+            <p className="text-xs sm:text-sm text-indigo-200 max-w-xl mb-5 leading-relaxed font-medium">
+              {currentConfig.explanationStory}
+            </p>
+
+            {/* Açıklamalar Grid (Rules & Instructions) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mb-5 text-left">
+              {currentConfig.rules.map((rule, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 sm:p-3.5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md flex items-start gap-3 shadow-md hover:bg-white/15 transition-colors"
+                >
+                  <span className="text-2xl sm:text-3xl shrink-0 mt-0.5">{rule.icon}</span>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-black text-amber-300 mb-0.5">
+                      {rule.title}
+                    </h4>
+                    <p className="text-[11px] sm:text-xs text-indigo-100/90 leading-tight font-medium">
+                      {rule.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Level Targets Badges */}
+            <div className="w-full flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-6">
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-400/20 border border-amber-300/40 text-amber-200 text-xs font-bold">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-300" />
+                <span>Hedef: {currentConfig.requiredStars} Yıldız</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-indigo-400/20 border border-indigo-300/40 text-indigo-200 text-xs font-bold">
+                <span>🪜</span>
+                <span>{currentConfig.totalSteps} Basamak</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-purple-400/20 border border-purple-300/40 text-purple-200 text-xs font-bold">
+                <span>🛰️</span>
+                <span>{currentConfig.obstacleText}</span>
+              </div>
+            </div>
+
+            {/* BAŞLA BUTTON */}
+            <button
+              onClick={handleStartLevel}
+              className="w-full sm:w-auto px-12 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white text-lg sm:text-xl font-black shadow-xl hover:shadow-emerald-500/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 cursor-pointer group"
+            >
+              <Play className="w-6 h-6 fill-white group-hover:scale-110 transition-transform" />
+              <span>BAŞLA</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* ==================================================== */
+        /* GAMEPLAY ACTIVITY SCREEN (AÇIKLAMALAR OLMASIN)       */
+        /* ==================================================== */
+        <>
+          {/* Instructional Feedback Notification Bar */}
+          <div
+            className={`px-4 py-2 border-b flex items-center justify-between text-xs sm:text-sm font-bold transition-colors duration-300 ${
+              messageType === 'success'
+                ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+                : messageType === 'warning'
+                ? 'bg-amber-50 text-amber-950 border-amber-300'
+                : 'bg-indigo-50 text-indigo-900 border-indigo-200'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {messageType === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />}
+              {messageType === 'warning' && <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 animate-bounce" />}
+              {messageType === 'info' && <MousePointer className="w-4 h-4 text-indigo-600 shrink-0 animate-pulse" />}
+              <span>{message}</span>
+            </div>
+
+            {/* Current Step Progress Badge */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-white/80 border border-slate-300 text-slate-700">
+                Basamak {astronautStep} / {currentConfig.totalSteps}
+              </span>
             </div>
           </div>
-          <button
-            onClick={() => setShowGuide(false)}
-            className="text-xs text-indigo-700 underline font-extrabold hover:text-indigo-950 cursor-pointer ml-3 shrink-0"
+
+          {/* Cosmic Interactive Sky Canvas */}
+          <div
+            ref={containerRef}
+            onMouseMove={handleMouseMove}
+            onClick={handleStageClick}
+            className="relative w-full h-[460px] sm:h-[520px] bg-gradient-to-b from-[#050714] via-[#0b1028] to-[#1c1846] overflow-hidden cursor-crosshair select-none"
           >
-            Kapat
-          </button>
-        </div>
-      )}
+            {/* Deep Space Atmosphere Decorations */}
+            <div className="absolute top-4 left-10 text-3xl opacity-40 pointer-events-none animate-pulse">✨</div>
+            <div className="absolute top-16 right-16 text-4xl opacity-50 pointer-events-none">🌕</div>
+            <div className="absolute top-1/3 left-14 text-2xl opacity-40 pointer-events-none">🪐</div>
+            <div className="absolute top-2/3 right-10 text-3xl opacity-30 pointer-events-none">✨</div>
+            <div className="absolute bottom-1/4 left-1/4 text-2xl opacity-40 pointer-events-none">⭐</div>
 
-      {/* Cosmic Interactive Sky Canvas */}
-      <div
-        ref={containerRef}
-        onMouseMove={handleMouseMove}
-        onClick={handleStageClick}
-        className="relative w-full h-[460px] sm:h-[520px] bg-gradient-to-b from-[#050714] via-[#0b1028] to-[#1c1846] overflow-hidden cursor-crosshair select-none"
-      >
-        {/* Deep Space Atmosphere Decorations */}
-        <div className="absolute top-4 left-10 text-3xl opacity-40 pointer-events-none animate-pulse">✨</div>
-        <div className="absolute top-16 right-16 text-4xl opacity-50 pointer-events-none">🌕</div>
-        <div className="absolute top-1/3 left-14 text-2xl opacity-40 pointer-events-none">🪐</div>
-        <div className="absolute top-2/3 right-10 text-3xl opacity-30 pointer-events-none">✨</div>
-        <div className="absolute bottom-1/4 left-1/4 text-2xl opacity-40 pointer-events-none">⭐</div>
+            {/* Space Tower Background Pillars (Left and Right) */}
+            <div className="absolute inset-y-0 left-3 w-4 bg-indigo-900/40 border-r border-indigo-500/20 pointer-events-none" />
+            <div className="absolute inset-y-0 right-3 w-4 bg-indigo-900/40 border-l border-indigo-500/20 pointer-events-none" />
 
-        {/* Space Tower Background Pillars (Left and Right) */}
-        <div className="absolute inset-y-0 left-3 w-4 bg-indigo-900/40 border-r border-indigo-500/20 pointer-events-none" />
-        <div className="absolute inset-y-0 right-3 w-4 bg-indigo-900/40 border-l border-indigo-500/20 pointer-events-none" />
+            {/* Scrolling World Container that moves with cameraOffsetY */}
+            <div
+              className="absolute inset-x-0 bottom-0 transition-transform duration-500 ease-out"
+              style={{
+                transform: `translateY(${cameraOffsetY}px)`,
+              }}
+            >
+              {/* ==================================================== */}
+              {/* STEP PLATFORMS */}
+              {/* ==================================================== */}
+              {steps.map((step) => {
+                const isCurrent = step.index === astronautStep;
+                const isTarget = step.index === targetStepIndex;
+                const isTop = step.index === currentConfig.totalSteps;
 
-        {/* Scrolling World Container that moves with cameraOffsetY */}
-        <div
-          className="absolute inset-x-0 bottom-0 transition-transform duration-500 ease-out"
-          style={{
-            transform: `translateY(${cameraOffsetY}px)`,
-          }}
-        >
-          {/* ==================================================== */}
-          {/* STEP PLATFORMS */}
-          {/* ==================================================== */}
-          {steps.map((step) => {
-            const isCurrent = step.index === astronautStep;
-            const isTarget = step.index === targetStepIndex;
-            const isTop = step.index === currentConfig.totalSteps;
+                return (
+                  <div
+                    key={step.index}
+                    className="absolute flex flex-col items-center justify-start pointer-events-none transition-all duration-300"
+                    style={{
+                      bottom: `${step.yOffsetPx}px`,
+                      left: `${step.xPercent}%`,
+                      width: `${step.widthPercent}%`,
+                      transform: 'translateX(-50%)',
+                    }}
+                  >
+                    {/* Star on the Step */}
+                    {step.hasStar && (
+                      <div
+                        className={`-mt-10 mb-1 flex items-center justify-center transition-all duration-300 ${
+                          step.starCollected
+                            ? 'opacity-20 scale-75'
+                            : 'animate-bounce drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]'
+                        }`}
+                      >
+                        <span className="text-3xl sm:text-4xl">⭐</span>
+                      </div>
+                    )}
 
-            return (
+                    {/* Platform Ledge */}
+                    <div
+                      className={`w-full h-8 sm:h-9 rounded-2xl border-2 flex items-center justify-between px-3 shadow-lg transition-all duration-300 ${
+                        isTop
+                          ? 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 border-yellow-200 ring-4 ring-yellow-400/40 text-amber-950 font-black'
+                          : isTarget
+                          ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 border-indigo-300 ring-4 ring-indigo-400/40 text-white font-extrabold'
+                          : isCurrent
+                          ? 'bg-gradient-to-r from-emerald-500 to-teal-600 border-emerald-300 text-white font-bold'
+                          : 'bg-gradient-to-r from-slate-700 via-slate-800 to-slate-700 border-slate-600 text-slate-300'
+                      }`}
+                    >
+                      <span className="text-[10px] sm:text-xs font-black opacity-90">
+                        {step.index === 0 ? '🚀 Başlangıç' : isTop ? '🏆 Zirve' : `${step.index}. Basamak`}
+                      </span>
+                      {isTarget && (
+                        <span className="text-[9px] sm:text-[10px] bg-white text-indigo-950 font-black px-1.5 py-0.5 rounded-full animate-pulse">
+                          Hedef
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Soft glow under target platform */}
+                    {isTarget && (
+                      <div className="w-full h-2 bg-indigo-400/40 blur-sm rounded-full -mt-1" />
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* ==================================================== */}
+              {/* SATELLITE OBSTACLES (Moving Horizontally) */}
+              {/* ==================================================== */}
+              {satellites.map((sat) => {
+                const stepData = steps[sat.atStep];
+                if (!stepData) return null;
+
+                // Height positioned between step Y and step Y - 1
+                const satY = stepData.yOffsetPx - currentConfig.stepYGapPx * 0.45;
+
+                return (
+                  <div
+                    key={sat.id}
+                    className="absolute z-20 pointer-events-none transition-transform duration-75 flex flex-col items-center"
+                    style={{
+                      bottom: `${satY}px`,
+                      left: `${sat.xPercent}%`,
+                      transform: 'translate(-50%, 0)',
+                    }}
+                  >
+                    <div className="flex items-center gap-1 bg-purple-950/80 border border-purple-400/50 px-2 py-0.5 rounded-full shadow-md text-white text-[10px] font-black">
+                      <span className="text-base sm:text-xl animate-spin-slow">🛰️</span>
+                      <span>Uydu</span>
+                    </div>
+                    {/* Danger laser trail */}
+                    <div className="w-16 h-0.5 bg-red-400/60 blur-[1px] mt-0.5 animate-pulse" />
+                  </div>
+                );
+              })}
+
+              {/* ==================================================== */}
+              {/* THE LADDER (Controlled horizontally by Mouse) */}
+              {/* ==================================================== */}
+              {astronautStep < currentConfig.totalSteps && (
+                <div
+                  className={`absolute z-30 pointer-events-none transition-colors duration-200 flex flex-col items-center ${
+                    isAligned ? 'opacity-100 scale-100' : 'opacity-85'
+                  }`}
+                  style={{
+                    bottom: `${currentStepData.yOffsetPx + 8}px`,
+                    left: `${ladderXPercent}%`,
+                    width: `${currentConfig.stepWidthPercent * 0.85}%`,
+                    height: `${currentConfig.stepYGapPx}px`,
+                    transform: 'translateX(-50%)',
+                  }}
+                >
+                  {/* Alignment Status Beacon */}
+                  <div
+                    className={`-mt-6 mb-1 px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-md flex items-center gap-1 transition-all ${
+                      isAligned
+                        ? 'bg-emerald-500 text-white ring-2 ring-emerald-300 animate-bounce'
+                        : 'bg-amber-500/90 text-white'
+                    }`}
+                  >
+                    {isAligned ? (
+                      <>
+                        <CheckCircle2 className="w-3 h-3 text-white" />
+                        <span>Hizalandı! Tıkla 👇</span>
+                      </>
+                    ) : (
+                      <>
+                        <ArrowUp className="w-3 h-3 text-white" />
+                        <span>Basamağa Hizala</span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* High-Tech Neon Ladder Rungs */}
+                  <div
+                    className={`w-full h-full rounded-xl border-2 flex flex-col justify-between p-1 shadow-xl transition-all duration-200 ${
+                      isAligned
+                        ? 'bg-emerald-500/20 border-emerald-400 ring-4 ring-emerald-400/40'
+                        : 'bg-cyan-500/15 border-cyan-400'
+                    }`}
+                  >
+                    {[0, 1, 2, 3, 4].map((rungIdx) => (
+                      <div
+                        key={rungIdx}
+                        className={`w-full h-1.5 rounded-full transition-colors ${
+                          isAligned ? 'bg-emerald-300 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-cyan-300/80'
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Vertical Guide Beam to Next Step */}
+                  {isAligned && (
+                    <div className="absolute -top-10 w-0.5 h-10 border-l-2 border-dashed border-emerald-300/80 animate-pulse pointer-events-none" />
+                  )}
+                </div>
+              )}
+
+              {/* ==================================================== */}
+              {/* THE ASTRONAUT CHARACTER */}
+              {/* ==================================================== */}
               <div
-                key={step.index}
-                className="absolute flex flex-col items-center justify-start pointer-events-none transition-all duration-300"
+                className={`absolute z-40 pointer-events-none transition-all duration-300 flex flex-col items-center ${
+                  isClimbing ? '-translate-y-6 scale-110' : ''
+                }`}
                 style={{
-                  bottom: `${step.yOffsetPx}px`,
-                  left: `${step.xPercent}%`,
-                  width: `${step.widthPercent}%`,
+                  bottom: `${currentStepData.yOffsetPx + 32}px`,
+                  left: `${currentStepData.xPercent}%`,
                   transform: 'translateX(-50%)',
                 }}
               >
-                {/* Star on the Step */}
-                {step.hasStar && (
-                  <div
-                    className={`-mt-10 mb-1 flex items-center justify-center transition-all duration-300 ${
-                      step.starCollected
-                        ? 'opacity-20 scale-75'
-                        : 'animate-bounce drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]'
-                    }`}
-                  >
-                    <span className="text-3xl sm:text-4xl">⭐</span>
+                {/* Thought bubble or action hint */}
+                {!isClimbing && astronautStep < currentConfig.totalSteps && (
+                  <div className="mb-1 bg-white/95 border border-indigo-300 text-indigo-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow-md animate-pulse">
+                    {isAligned ? 'Tıkla ve Tırman!' : 'Merdiveni Bekliyorum'}
                   </div>
                 )}
 
-                {/* Platform Ledge */}
+                {/* Astronaut Avatar */}
                 <div
-                  className={`w-full h-8 sm:h-9 rounded-2xl border-2 flex items-center justify-between px-3 shadow-lg transition-all duration-300 ${
-                    isTop
-                      ? 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 border-yellow-200 ring-4 ring-yellow-400/40 text-amber-950 font-black'
-                      : isTarget
-                      ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 border-indigo-300 ring-4 ring-indigo-400/40 text-white font-extrabold'
-                      : isCurrent
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 border-emerald-300 text-white font-bold'
-                      : 'bg-gradient-to-r from-slate-700 via-slate-800 to-slate-700 border-slate-600 text-slate-300'
+                  className={`text-5xl sm:text-6xl filter drop-shadow-xl transition-transform ${
+                    isClimbing ? 'rotate-6' : 'hover:scale-105'
                   }`}
                 >
-                  <span className="text-[10px] sm:text-xs font-black opacity-90">
-                    {step.index === 0 ? '🚀 Başlangıç' : isTop ? '🏆 Zirve' : `${step.index}. Basamak`}
-                  </span>
-                  {isTarget && (
-                    <span className="text-[9px] sm:text-[10px] bg-white text-indigo-950 font-black px-1.5 py-0.5 rounded-full animate-pulse">
-                      Hedef
-                    </span>
-                  )}
+                  👨‍🚀
                 </div>
 
-                {/* Soft glow under target platform */}
-                {isTarget && (
-                  <div className="w-full h-2 bg-indigo-400/40 blur-sm rounded-full -mt-1" />
+                {/* Astronaut Jetpack Sparkles */}
+                {isClimbing && (
+                  <div className="text-xl animate-bounce -mt-2">🔥✨</div>
                 )}
               </div>
-            );
-          })}
+            </div>
 
-          {/* ==================================================== */}
-          {/* SATELLITE OBSTACLES (Moving Horizontally) */}
-          {/* ==================================================== */}
-          {satellites.map((sat) => {
-            const stepData = steps[sat.atStep];
-            if (!stepData) return null;
-
-            // Height positioned between step Y and step Y - 1
-            const satY = stepData.yOffsetPx - currentConfig.stepYGapPx * 0.45;
-
-            return (
-              <div
-                key={sat.id}
-                className="absolute z-20 pointer-events-none transition-transform duration-75 flex flex-col items-center"
-                style={{
-                  bottom: `${satY}px`,
-                  left: `${sat.xPercent}%`,
-                  transform: 'translate(-50%, 0)',
-                }}
-              >
-                <div className="flex items-center gap-1 bg-purple-950/80 border border-purple-400/50 px-2 py-0.5 rounded-full shadow-md text-white text-[10px] font-black">
-                  <span className="text-base sm:text-xl animate-spin-slow">🛰️</span>
-                  <span>Uydu</span>
+            {/* Paused Overlay */}
+            {isPaused && (
+              <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-xs flex flex-col items-center justify-center text-white z-50 p-6">
+                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4 border border-white/20">
+                  <Pause className="w-8 h-8" />
                 </div>
-                {/* Danger laser trail */}
-                <div className="w-16 h-0.5 bg-red-400/60 blur-[1px] mt-0.5 animate-pulse" />
-              </div>
-            );
-          })}
-
-          {/* ==================================================== */}
-          {/* THE LADDER (Controlled horizontally by Mouse) */}
-          {/* ==================================================== */}
-          {astronautStep < currentConfig.totalSteps && (
-            <div
-              className={`absolute z-30 pointer-events-none transition-colors duration-200 flex flex-col items-center ${
-                isAligned ? 'opacity-100 scale-100' : 'opacity-85'
-              }`}
-              style={{
-                bottom: `${currentStepData.yOffsetPx + 8}px`,
-                left: `${ladderXPercent}%`,
-                width: `${currentConfig.stepWidthPercent * 0.85}%`,
-                height: `${currentConfig.stepYGapPx}px`,
-                transform: 'translateX(-50%)',
-              }}
-            >
-              {/* Alignment Status Beacon */}
-              <div
-                className={`-mt-6 mb-1 px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-md flex items-center gap-1 transition-all ${
-                  isAligned
-                    ? 'bg-emerald-500 text-white ring-2 ring-emerald-300 animate-bounce'
-                    : 'bg-amber-500/90 text-white'
-                }`}
-              >
-                {isAligned ? (
-                  <>
-                    <CheckCircle2 className="w-3 h-3 text-white" />
-                    <span>Hizalandı! Tıkla 👇</span>
-                  </>
-                ) : (
-                  <>
-                    <ArrowUp className="w-3 h-3 text-white" />
-                    <span>Basamağa Hizala</span>
-                  </>
-                )}
-              </div>
-
-              {/* Realistic High-Tech Neon Ladder Rungs */}
-              <div
-                className={`w-full h-full rounded-xl border-2 flex flex-col justify-between p-1 shadow-xl transition-all duration-200 ${
-                  isAligned
-                    ? 'bg-emerald-500/20 border-emerald-400 ring-4 ring-emerald-400/40'
-                    : 'bg-cyan-500/15 border-cyan-400'
-                }`}
-              >
-                {/* 5 Rungs */}
-                {[0, 1, 2, 3, 4].map((rungIdx) => (
-                  <div
-                    key={rungIdx}
-                    className={`w-full h-1.5 rounded-full transition-colors ${
-                      isAligned ? 'bg-emerald-300 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-cyan-300/80'
-                    }`}
-                  />
-                ))}
-              </div>
-
-              {/* Vertical Guide Beam to Next Step */}
-              {isAligned && (
-                <div className="absolute -top-10 w-0.5 h-10 border-l-2 border-dashed border-emerald-300/80 animate-pulse pointer-events-none" />
-              )}
-            </div>
-          )}
-
-          {/* ==================================================== */}
-          {/* THE ASTRONAUT CHARACTER */}
-          {/* ==================================================== */}
-          <div
-            className={`absolute z-40 pointer-events-none transition-all duration-300 flex flex-col items-center ${
-              isClimbing ? '-translate-y-6 scale-110' : ''
-            }`}
-            style={{
-              bottom: `${currentStepData.yOffsetPx + 32}px`,
-              left: `${currentStepData.xPercent}%`,
-              transform: 'translateX(-50%)',
-            }}
-          >
-            {/* Thought bubble or action hint */}
-            {!isClimbing && astronautStep < currentConfig.totalSteps && (
-              <div className="mb-1 bg-white/95 border border-indigo-300 text-indigo-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow-md animate-pulse">
-                {isAligned ? 'Tıkla ve Tırman!' : 'Merdiveni Bekliyorum'}
+                <h3 className="text-2xl font-black mb-2">Oyun Duraklatıldı</h3>
+                <p className="text-sm text-indigo-200 mb-6 font-medium">
+                  Hazır olduğunda devam et butonuna basarak tırmanışa devam edebilirsin.
+                </p>
+                <button
+                  onClick={() => {
+                    setIsPaused(false);
+                    soundEffects.playPop(soundEnabled);
+                  }}
+                  className="px-6 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-600 font-black text-white shadow-lg flex items-center gap-2 cursor-pointer"
+                >
+                  <Play className="w-4 h-4 fill-white" />
+                  <span>Devam Et</span>
+                </button>
               </div>
             )}
-
-            {/* Astronaut Avatar */}
-            <div
-              className={`text-5xl sm:text-6xl filter drop-shadow-xl transition-transform ${
-                isClimbing ? 'rotate-6' : 'hover:scale-105'
-              }`}
-            >
-              👨‍🚀
-            </div>
-
-            {/* Astronaut Jetpack Sparkles */}
-            {isClimbing && (
-              <div className="text-xl animate-bounce -mt-2">🔥✨</div>
-            )}
           </div>
-        </div>
+        </>
+      )}
 
-        {/* Level 1 Helper Gesture Animation at the bottom center */}
-        {currentConfig.levelNum === 1 && astronautStep === 0 && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/90 border-2 border-indigo-400 px-4 py-2 rounded-2xl shadow-xl flex items-center gap-3 z-30 pointer-events-none animate-in fade-in zoom-in-90 duration-300">
-            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 animate-pulse">
-              <MousePointer className="w-5 h-5" />
+      {/* ==================================================== */}
+      {/* HOW TO PLAY HELP MODAL (ON-DEMAND)                   */}
+      {/* ==================================================== */}
+      {showHelpModal && (
+        <div className="absolute inset-0 bg-indigo-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#0f173f] border-2 border-indigo-400/50 rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl text-white animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-4 border-b border-indigo-500/30 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🪜</span>
+                <h3 className="text-lg font-black text-white">Nasıl Oynanır? (Açıklamalar)</h3>
+              </div>
+              <button
+                onClick={() => setShowHelpModal(false)}
+                className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-indigo-200 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <div>
-              <p className="text-xs font-black text-indigo-950">
-                1. Mouse'u kaydırarak merdiveni basamağa getir
-              </p>
-              <p className="text-[11px] font-bold text-emerald-700">
-                2. Yeşil olunca SOL TUŞLA BİR KEZ TIKLA!
-              </p>
-            </div>
-          </div>
-        )}
 
-        {/* Paused Overlay */}
-        {isPaused && (
-          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-xs flex flex-col items-center justify-center text-white z-50 p-6">
-            <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4 border border-white/20">
-              <Pause className="w-8 h-8" />
+            <div className="space-y-2.5 mb-6 text-xs sm:text-sm">
+              {currentConfig.rules.map((rule, idx) => (
+                <div key={idx} className="flex items-start gap-2.5 bg-white/5 p-2.5 rounded-xl border border-white/10">
+                  <span className="text-xl shrink-0">{rule.icon}</span>
+                  <div>
+                    <strong className="text-amber-300 block">{rule.title}</strong>
+                    <span className="text-indigo-200 text-xs">{rule.desc}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <h3 className="text-2xl font-black mb-2">Oyun Duraklatıldı</h3>
-            <p className="text-sm text-indigo-200 mb-6 font-medium">
-              Hazır olduğunda devam et butonuna basarak tırmanışa devam edebilirsin.
-            </p>
+
             <button
-              onClick={() => {
-                setIsPaused(false);
-                soundEffects.playPop(soundEnabled);
-              }}
-              className="px-6 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-600 font-black text-white shadow-lg flex items-center gap-2 cursor-pointer"
+              onClick={() => setShowHelpModal(false)}
+              className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm shadow-lg transition-colors cursor-pointer"
             >
-              <Play className="w-4 h-4 fill-white" />
-              <span>Devam Et</span>
+              Anladım, Oyuna Devam Et
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* ==================================================== */}
       {/* LEVEL COMPLETED MODAL */}

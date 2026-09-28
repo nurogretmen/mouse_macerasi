@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Play, Sparkles, Clock, BookOpen, CheckCircle2 } from 'lucide-react';
+import { Play, Sparkles, Clock, BookOpen, CheckCircle2, Volume2 } from 'lucide-react';
 import { ACTIVITIES, STAGES } from '../data/activities.ts';
 import { StageId } from '../types.ts';
 import { MouseActionBadge } from './MouseActionBadge.tsx';
+import { speakTurkishText } from '../utils/audio.ts';
 
 interface LevelSelectorProps {
   completedActivities: Record<number, { completed: boolean; stars: number; score: number }>;
@@ -230,12 +231,27 @@ export const LevelSelector: React.FC<LevelSelectorProps> = ({
                 </div>
 
                 {/* Title & Goal */}
-                <h4 className="text-lg font-black text-slate-800 leading-tight">
-                  {act.title}
-                </h4>
-                <p className="text-xs font-bold text-blue-600 mt-1">
-                  {act.subtitle}
-                </p>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 className="text-lg font-black text-slate-800 leading-tight">
+                      {act.title}
+                    </h4>
+                    <p className="text-xs font-bold text-blue-600 mt-0.5">
+                      {act.subtitle}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      speakTurkishText(`${act.title}. ${act.actionInstruction}`);
+                    }}
+                    className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer shrink-0"
+                    title="Görevi Sesli Dinle"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                  </button>
+                </div>
                 <p className="text-xs text-slate-500 font-medium mt-2 line-clamp-2">
                   {act.goal}
                 </p>

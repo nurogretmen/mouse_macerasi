@@ -259,3 +259,18 @@ export const soundEffects = {
     }
   },
 };
+
+// Turkish Text-to-Speech narration helper for primary school children
+export const speakTurkishText = (text: string) => {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'tr-TR';
+    utterance.rate = 0.92;
+    utterance.pitch = 1.05;
+    window.speechSynthesis.speak(utterance);
+  } catch {
+    // Ignore speech error if blocked or unsupported
+  }
+};
